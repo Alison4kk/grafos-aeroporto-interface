@@ -1,0 +1,22 @@
+{
+  "SC1": {
+    "conexoes": [
+      {"id": "SC2", "custo": "4"}
+    ]
+  },
+  "SC2": {
+    "conexoes": [
+      {"id": "SC2", "custo": "4"}
+    ]
+  },
+  "SC3": {
+    "conexoes": [
+      {"id": "SC2", "custo": "4"}
+    ]
+  },
+  "RS1": {
+    "conexoes": [
+      {"id": "SC2", "custo": "4"}
+    ]
+  }
+}
