@@ -3,21 +3,24 @@
   <div class="container">
     <div class="row">
       <div class="col-12 col-md-6">
-
+        <map-viewer :airports="airports" />
       </div>
       <div class="col-12 col-md-6">
-        <div class="d-flex justify-content-between gap-2">
-          <div class="mb-3 w-100">
-            <label for="inputPartida" class="form-label">Partida</label>
-            <ModelSelect :options="aeroportoOptionsPartida" class="w-100" v-model="selectedOptionPartida"/>
+        <div class="shadow-lg p-4">
+          <div class="d-flex justify-content-between gap-2">
+            <div class="mb-3 w-100">
+              <label for="inputStart" class="form-label">Partida</label>
+              <ModelSelect :options="airportOptionsStart" class="w-100" v-model="selectedOptionStart"/>
+            </div>
+            <div class="mb-3 w-100">
+              <label for="inputStart" class="form-label">Destino</label>
+              <ModelSelect :options="airportOptionsEnd" class="w-100" v-model="selectedOptionEnd"/>
+            </div>
           </div>
-          <div class="mb-3 w-100">
-            <label for="inputPartida" class="form-label">Destino</label>
-            <ModelSelect :options="aeroportoOptionsDestino" class="w-100" v-model="selectedOptionDestino"/>
-          </div>
-        </div>
+          <button :disabled="!canpickRoutes" @click="pickRoutes" class="btn btn-primary w-100">Montar Rota</button>
 
-        <button :disabled="!podeMontarRota" class="btn btn-primary w-100">Montar Rota</button>
+          <RouteTable :airportRoutes="airportRoutes" :isLoading="isLoadingRoutes" />
+        </div>
       </div>
     </div>
   </div>
@@ -28,43 +31,65 @@
 import { defineComponent } from 'vue';
 import {ModelSelect} from 'vue-search-select';
 import "vue-search-select/dist/VueSearchSelect.css"
-import aeroportos from './assets/aeroportos.json';
-import {AeroportoOption} from './assets/types'
+import airports from '@/assets/airports.json';
+import {Airport, AirportOption, AirportRoutes} from '@/types/types'
+import RouteTable from './components/RouteTable.vue';
+import MapViewer from './components/MapViewer.vue';
+
 
 
 export default defineComponent({
   name: 'App',
   components: {
-    ModelSelect
+    ModelSelect, RouteTable,
+    MapViewer
   },
   data() {
     return {
-      aeroportoOptionsPartida: [] as AeroportoOption[],
-      aeroportos,
-      selectedOptionPartida: {value: '', text: '', disabled: false} as AeroportoOption,
-      selectedOptionDestino: {value: '', text: '', disabled: false} as AeroportoOption,
+      airportOptionsStart: [] as AirportOption[],
+      airports: airports as Airport[],
+      selectedOptionStart: {value: '', text: ''} as AirportOption,
+      selectedOptionEnd: {value: '', text: ''} as AirportOption,
+      airportRoutes: [] as AirportRoutes,
+      isLoadingRoutes: false
     }
   },
   mounted() {
-    this.loadAeroportoOptions()
+    this.loadAirportOptions()
   },
   methods: {
-    loadAeroportoOptions() {
-      const aeroportoOptions : AeroportoOption[] = [];
-      for (const id in this.aeroportos) {
-        if (Object.prototype.hasOwnProperty.call(aeroportos, id)) {
-          aeroportoOptions.push({value: id, text: id, disabled: false})
-        }
-      }
-      this.aeroportoOptionsPartida = aeroportoOptions;
+    loadAirportOptions() {
+      this.airportOptionsStart = airports.map((airport) => {
+        return {value: airport.id, text: airport.id}
+      });
+    },
+    pickRoutes() {
+      this.isLoadingRoutes = true;
+      this.airportRoutes = [];
+      setTimeout(() => {
+        fetch('/api/routes.json')
+          .then((response) => response.json())
+          .then((routes: AirportRoutes) => {
+            this.airportRoutes = routes;
+            this.isLoadingRoutes = false;
+          });
+      }, 2000)
+
     }
   },
   computed: {
-    aeroportoOptionsDestino(): AeroportoOption[] {
-      return this.aeroportoOptionsPartida.filter((option: AeroportoOption ) => this.selectedOptionPartida.value != option.value)
+    airportOptionsEnd(): AirportOption[] {
+      return this.airportOptionsStart.filter((option: AirportOption ) => this.selectedOptionStart.value != option.value)
     },
-    podeMontarRota(): boolean {
-      return (this.selectedOptionDestino.value != '' && this.selectedOptionPartida.value != '')
+    canpickRoutes(): boolean {
+      return (this.selectedOptionEnd.value != '' && this.selectedOptionStart.value != '')
+    }
+  },
+  watch: {
+    selectedOptionStart() {
+      if (this.selectedOptionStart.value == this.selectedOptionEnd.value) {
+        this.selectedOptionEnd = {value: '', text: ''}
+      }
     }
   }
 });
@@ -79,8 +104,11 @@ html, body {
 }
 
 .ui.selection.dropdown {
+  :hover {
+    cursor: pointer !important;;
+  }
   .item.selected {
-    background-color: #411091;
+    background-color: #0d6efd;
     color: #fff;
   }
 }
@@ -90,7 +118,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   // background: rgb(201, 201, 201);
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
 }
