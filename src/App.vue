@@ -2,11 +2,11 @@
 
   <div class="container">
     <div class="row">
-      <div class="col-12 col-md-6">
-        <map-viewer :airports="airports" />
+      <div class="col-12 col-lg-7">
+        <map-viewer class="animate__animated animate__fadeIn animate__delay-1s" :airports="airports" :connections="connections" />
       </div>
-      <div class="col-12 col-md-6">
-        <div class="shadow-lg p-4">
+      <div class="col-12 col-lg-5">
+        <div class="h-100 shadow-lg p-4 animate__animated animate__zoomInDown">
           <div class="d-flex justify-content-between gap-2">
             <div class="mb-3 w-100">
               <label for="inputStart" class="form-label">Partida</label>
@@ -31,11 +31,11 @@
 import { defineComponent } from 'vue';
 import {ModelSelect} from 'vue-search-select';
 import "vue-search-select/dist/VueSearchSelect.css"
-import airports from '@/assets/airports.json';
-import {Airport, AirportOption, AirportRoutes} from '@/types/types'
+import data from '@/assets/data.json';
+import {Airport, AirportOption, AirportRoutes, Conection} from '@/types/types'
 import RouteTable from './components/RouteTable.vue';
 import MapViewer from './components/MapViewer.vue';
-
+import 'animate.css';
 
 
 export default defineComponent({
@@ -47,7 +47,8 @@ export default defineComponent({
   data() {
     return {
       airportOptionsStart: [] as AirportOption[],
-      airports: airports as Airport[],
+      airports: data.airports as Airport[],
+      connections: data.connections as Conection[],
       selectedOptionStart: {value: '', text: ''} as AirportOption,
       selectedOptionEnd: {value: '', text: ''} as AirportOption,
       airportRoutes: [] as AirportRoutes,
@@ -55,11 +56,12 @@ export default defineComponent({
     }
   },
   mounted() {
-    this.loadAirportOptions()
+    this.loadAirportOptions();
+
   },
   methods: {
     loadAirportOptions() {
-      this.airportOptionsStart = airports.map((airport) => {
+      this.airportOptionsStart = this.airports.map((airport) => {
         return {value: airport.id, text: airport.id}
       });
     },

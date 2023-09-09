@@ -28,7 +28,7 @@
       </tbody>
     </table>
     <empty-state v-if="!routes.length && !isLoading"/>
-    <loading-state v-if="isLoading"/>
+    <loading-state class="animate__animated animate__zoomIn" v-if="isLoading"/>
   </div>
 </template>
 

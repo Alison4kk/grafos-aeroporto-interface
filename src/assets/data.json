@@ -1,0 +1,1 @@
+{"airports":[{"id":"SC1","x":319,"y":468},{"id":"SC2","x":378,"y":484},{"id":"SC3","x":391,"y":506},{"id":"PR5","x":514,"y":303}],"connections":[{"ids":["SC1","SC2"],"cost":5},{"ids":["SC2","PR5"],"cost":5},{"ids":["SC2","SC3"],"cost":5}]}

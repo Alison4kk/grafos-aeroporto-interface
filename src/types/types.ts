@@ -4,20 +4,23 @@ type AirportOption = {
 }
 
 type Conection = {
-  id: string,
+  ids: string[],
   cost: number
+}
+
+type ConnectionLine = {
+  x: number,
+  y: number,
+  width: number
+  angle: number
 }
 
 type Airport = {
   id: string,
   x: number,
   y: number,
-  connections: Conection[]
 }
-
 
 type AirportRoute = string[];
 type AirportRoutes = AirportRoute[];
-
-
-export {AirportOption, AirportRoute, AirportRoutes, Airport, Conection}
+export {AirportOption, AirportRoute, AirportRoutes, Airport, Conection, ConnectionLine}
