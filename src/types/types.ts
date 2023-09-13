@@ -21,6 +21,11 @@ type Airport = {
   y: number,
 }
 
-type AirportRoute = string[];
+type AirportRoute = {
+  path: string[],
+  cost: number
+}
+
+
 type AirportRoutes = AirportRoute[];
 export {AirportOption, AirportRoute, AirportRoutes, Airport, Conection, ConnectionLine}

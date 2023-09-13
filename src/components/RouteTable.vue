@@ -1,6 +1,6 @@
 <template>
   <div class="py-5">
-    <table class="table table-hover table-striped">
+    <!-- <DataTable class="display">
       <thead class="thead-dark">
         <tr>
           <th scope="col" style="width: 5%">Nº</th>
@@ -26,7 +26,15 @@
           </td>
         </tr>
       </tbody>
-    </table>
+    </DataTable> -->
+    <DataTable v-if="routes.length" :data="routes" class="display">
+        <thead>
+            <tr>
+                <th>A</th>
+                <th>B</th>
+            </tr>
+        </thead>
+    </DataTable>
     <empty-state v-if="!routes.length && !isLoading"/>
     <loading-state class="animate__animated animate__zoomIn" v-if="isLoading"/>
   </div>
@@ -37,18 +45,30 @@ import { defineComponent } from 'vue'
 import {AirportRoutes} from '@/types/types'
 import LoadingState from './LoadingState.vue'
 import EmptyState from './EmptyState.vue'
+import DataTable from 'datatables.net-vue3';
+import DataTablesCore from 'datatables.net';
+
+DataTable.use(DataTablesCore);
 
 export default defineComponent({
   props: ['airportRoutes', 'isLoading'],
   components: {
     LoadingState,
-    EmptyState
+    EmptyState,
+    DataTable
+  },
+  data() {
+    return {
+    }
   },
   computed: {
-    routes(): AirportRoutes {
+    routes(): any {
       return this.airportRoutes ?? [] as AirportRoutes
     }
   }
 })
 </script>
 
+<style scoped>
+@import 'datatables.net-dt';
+</style>
