@@ -17,7 +17,7 @@
         />
         <div
           v-for="(airport, key) in airports"
-          :style="{ left: `${airport.x}px`, top: `${airport.y}px` }"
+          :style="{ left: `${airport.x}px`, top: `${airport.y}px`, 'background-color': airportColors[airport.id]}"
           class="airport"
           :key="key"
           @mousedown="draggingAirport = airport"
@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { Airport , Conection, ConnectionLine } from "@/types/types";
+import { Airport , Conection, ConnectionLine, RegionColor, StateColor } from "@/types/types";
 import { directive } from 'vue-tippy'
 import 'tippy.js/dist/tippy.css'
 
@@ -61,6 +61,10 @@ export default defineComponent({
       required: true,
       type: Array as PropType<Conection[]>,
     },
+    regionColors: {
+      required: true,
+      type: Array as PropType<RegionColor[]>,
+    },
 
   },
   methods: {
@@ -76,7 +80,7 @@ export default defineComponent({
         event.clientY - this.$refs["map-container"].offsetTop;
     },
     copyAirportsJSON() {
-      navigator.clipboard.writeText(JSON.stringify({airports: this.airports, connections: this.connections}));
+      navigator.clipboard.writeText(JSON.stringify({airports: this.airports, connections: this.connections, regionColors: this.regionColors}));
     }
   },
   computed: {
@@ -109,6 +113,22 @@ export default defineComponent({
       });
 
       return conectionLines;
+    },
+    airportColors() {
+      let stateColors = {} as {[key: string]: string};
+      this.regionColors.forEach((region) => {
+        region.ids.forEach((state) => {
+          stateColors[state] = region.color;
+        } )
+      });
+
+      let airportColors = {} as {[key: string]: string};
+      this.airports.forEach(airport => {
+        let uf = airport.id.substring(0, 2);
+        airportColors[airport.id] = stateColors[uf];
+      });
+
+      return airportColors;
     }
   },
   directives: {

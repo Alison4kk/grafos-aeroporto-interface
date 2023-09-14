@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "push-dist": "git subtree push --prefix dist https://github.com/Alison4kk/grafos-aeroporto-interface.git gh-page"
   },
   "dependencies": {
     "animate.css": "^4.1.1",

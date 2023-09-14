@@ -27,5 +27,12 @@ type AirportRoute = {
 }
 
 
+type RegionColor = {
+  ids: string[],
+  color: string
+}
+
+type StateColor = {[key: string]: string}
+
 type AirportRoutes = AirportRoute[];
-export {AirportOption, AirportRoute, AirportRoutes, Airport, Conection, ConnectionLine}
+export { AirportOption, AirportRoute, AirportRoutes, Airport, Conection, ConnectionLine, RegionColor, StateColor }
