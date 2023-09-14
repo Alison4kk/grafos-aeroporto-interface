@@ -1,47 +1,257 @@
 {
   "airports": [
-    { "id": "RS1", "x": 319, "y": 468 },
-    { "id": "RS2", "x": 319, "y": 468 },
-    { "id": "SC1", "x": 319, "y": 468 },
-    { "id": "SC2", "x": 319, "y": 468 },
-    { "id": "PR1", "x": 319, "y": 468 },
-    { "id": "PR2", "x": 319, "y": 468 },
-    { "id": "SP1", "x": 319, "y": 468 },
-    { "id": "SP2", "x": 319, "y": 468 },
-    { "id": "SP3", "x": 319, "y": 468 },
-    { "id": "SP4", "x": 319, "y": 468 },
-    { "id": "SP5", "x": 319, "y": 468 },
-    { "id": "MG1", "x": 319, "y": 468 },
-    { "id": "MG2", "x": 319, "y": 468 },
-    { "id": "MG3", "x": 319, "y": 468 },
-    { "id": "RJ1", "x": 319, "y": 468 },
-    { "id": "RJ2", "x": 319, "y": 468 },
-    { "id": "RJ3", "x": 319, "y": 468 },
-    { "id": "ES1", "x": 319, "y": 468 },
-    { "id": "MS1", "x": 319, "y": 468 },
-    { "id": "GO1", "x": 319, "y": 468 },
-    { "id": "GO2", "x": 319, "y": 468 },
-    { "id": "DF1", "x": 319, "y": 468 },
-    { "id": "MT1", "x": 319, "y": 468 },
-    { "id": "BA1", "x": 319, "y": 468 },
-    { "id": "BA2", "x": 319, "y": 468 },
-    { "id": "PI1", "x": 319, "y": 468 },
-    { "id": "SE1", "x": 319, "y": 468 },
-    { "id": "AL1", "x": 319, "y": 468 },
-    { "id": "PB1", "x": 319, "y": 468 },
-    { "id": "PE1", "x": 319, "y": 468 },
-    { "id": "PE2", "x": 319, "y": 468 },
-    { "id": "RN1", "x": 319, "y": 468 },
-    { "id": "MA1", "x": 319, "y": 468 },
-    { "id": "CE1", "x": 319, "y": 468 },
-    { "id": "CE2", "x": 319, "y": 468 },
-    { "id": "AM1", "x": 319, "y": 468 },
-    { "id": "AP1", "x": 319, "y": 468 },
-    { "id": "RO1", "x": 319, "y": 468 },
-    { "id": "RR1", "x": 319, "y": 468 },
-    { "id": "TO1", "x": 319, "y": 468 },
-    { "id": "AC1", "x": 319, "y": 468 },
-    { "id": "PA1", "x": 319, "y": 468 }
+    {
+      "id": "RS1",
+      "x": 308,
+      "y": 507,
+      "description": "Aeroporto Internacional de Porto Alegre / Salgado Filho"
+    },
+    {
+      "id": "RS2",
+      "x": 323,
+      "y": 557,
+      "description": "Aeroporto Regional de Caxias do Sul / Hugo Cantergiani"
+    },
+    {
+      "id": "SC1",
+      "x": 373,
+      "y": 491,
+      "description": "Aeroporto Internacional de Florianópolis / Hercílio Luz"
+    },
+    {
+      "id": "SC2",
+      "x": 330,
+      "y": 482,
+      "description": "Aeroporto Internacional de Navegantes / Ministro Victor Konder"
+    },
+    {
+      "id": "PR1",
+      "x": 322,
+      "y": 447,
+      "description": "Aeroporto Internacional de Curitiba / Afonso Pena"
+    },
+    {
+      "id": "PR2",
+      "x": 358,
+      "y": 453,
+      "description": "Aeroporto Regional de Maringá / Silvio Name"
+    },
+    {
+      "id": "SP1",
+      "x": 380,
+      "y": 422,
+      "description": "Aeroporto Internacional de São Paulo / Congonhas"
+    },
+    {
+      "id": "SP2",
+      "x": 420,
+      "y": 442,
+      "description": "Aeroporto Internacional de Viracopos / Campinas"
+    },
+    {
+      "id": "SP3",
+      "x": 393,
+      "y": 456,
+      "description": "Aeroporto Internacional de São Paulo/Guarulhos-Governador André Franco Motoro"
+    },
+    {
+      "id": "SP4",
+      "x": 394,
+      "y": 399,
+      "description": "Aeroporto Estadual de Presidente Prudente"
+    },
+    {
+      "id": "SP5",
+      "x": 360,
+      "y": 402,
+      "description": "Aeroporto Estadual de Bauru/Arealva"
+    },
+    {
+      "id": "MG1",
+      "x": 376,
+      "y": 374,
+      "description": "Aeroporto Internacional de Minas Gerais / Confins – Tancredo Neves"
+    },
+    {
+      "id": "MG2",
+      "x": 462,
+      "y": 374,
+      "description": "Aeroporto de Montes Claros/Mário Ribeiro"
+    },
+    {
+      "id": "MG3",
+      "x": 432,
+      "y": 331,
+      "description": "Aeroporto de Uberlândia / Ten. Cel. Av. César Bombonato"
+    },
+    {
+      "id": "RJ1",
+      "x": 458,
+      "y": 426,
+      "description": "Aeroporto Internacional do Rio de Janeiro / Galeão-Antônio Carlos Jobim"
+    },
+    {
+      "id": "RJ2",
+      "x": 486,
+      "y": 430,
+      "description": "Aerorporto Santos Dumont"
+    },
+    {
+      "id": "RJ3",
+      "x": 502,
+      "y": 416,
+      "description": "Aeroporto Internacional de Cabo Frio"
+    },
+    {
+      "id": "ES1",
+      "x": 513,
+      "y": 390,
+      "description": "Aeroporto de Vitória – Eurico de Aguiar Salles"
+    },
+    {
+      "id": "MS1",
+      "x": 308,
+      "y": 398,
+      "description": "Aeroporto Internacional de Campo Grande"
+    },
+    {
+      "id": "GO1",
+      "x": 355,
+      "y": 348,
+      "description": "Aeroporto de Goiânia / Santa Genoveva"
+    },
+    {
+      "id": "GO2",
+      "x": 374,
+      "y": 304,
+      "description": "Aeroporto Internacional de Brasília / Presidente Jucelino Kubitschek"
+    },
+    {
+      "id": "DF1",
+      "x": 398,
+      "y": 324,
+      "description": "Aeroporto Internacional de Manaus / Eduardo Gomes"
+    },
+    {
+      "id": "MT1",
+      "x": 272,
+      "y": 272,
+      "description": "Aeroporto Internacional de Cuiabá / Marechal Rondon"
+    },
+    {
+      "id": "BA1",
+      "x": 460,
+      "y": 271,
+      "description": "Aeroporto Internacional de Salvador / Deputado Luis Eduardo Magalhães"
+    },
+    {
+      "id": "BA2",
+      "x": 491,
+      "y": 296,
+      "description": "Aeroporto Internacional de Porto Seguro"
+    },
+    {
+      "id": "PI1",
+      "x": 450,
+      "y": 222,
+      "description": "Aeroporto de Teresina – Senador Petrônio Portella"
+    },
+    {
+      "id": "SE1",
+      "x": 554,
+      "y": 257,
+      "description": "Aeroporto Internacional de Aracaju / Santa Maria"
+    },
+    {
+      "id": "AL1",
+      "x": 572,
+      "y": 240,
+      "description": "Aeroporto de Maceió / Zumbi dos Palmares"
+    },
+    {
+      "id": "PB1",
+      "x": 569,
+      "y": 201,
+      "description": "Aeroporto Internacional de João Pessoa / Presidente Castro Pinto"
+    },
+    {
+      "id": "PE1",
+      "x": 569,
+      "y": 218,
+      "description": "Aeroporto Internacional do Recife/ Guararapes – Gilberto Freyre"
+    },
+    {
+      "id": "PE2",
+      "x": 510,
+      "y": 216,
+      "description": "Aeroporto de Petrolina / Senador Nilo Coelho"
+    },
+    {
+      "id": "RN1",
+      "x": 558,
+      "y": 184,
+      "description": "Aeroporto Internacional de Natal / Augusto Severo"
+    },
+    {
+      "id": "MA1",
+      "x": 438,
+      "y": 158,
+      "description": "Aeroporto Internacional de São Luís / Marechal Cunha Machado"
+    },
+    {
+      "id": "CE1",
+      "x": 520,
+      "y": 156,
+      "description": "Aeroporto Internacional de Fortaleza / Pinto Martins"
+    },
+    {
+      "id": "CE2",
+      "x": 511,
+      "y": 188,
+      "description": "Aeroporto de Juazeiro do Norte – Orlando Bezerra"
+    },
+    {
+      "id": "AM1",
+      "x": 133,
+      "y": 142,
+      "description": "Aeroporto Internacional de Manaus / Eduardo Gomes"
+    },
+    {
+      "id": "AP1",
+      "x": 336,
+      "y": 84,
+      "description": "Aeroporto Internacional de Macapá"
+    },
+    {
+      "id": "RO1",
+      "x": 180,
+      "y": 230,
+      "description": "Aeroporto Internacional de Porto Velho / Governador Jorge Teixeira de Oliveira"
+    },
+    {
+      "id": "RR1",
+      "x": 206,
+      "y": 78,
+      "description": "Aeroporto Internacional de Boa Vista / Atlas Brasil Cantanhede"
+    },
+    {
+      "id": "TO1",
+      "x": 391,
+      "y": 246,
+      "description": "Aeroporto de Palmas/Brigadeiro Lysias Rodrigues"
+    },
+    {
+      "id": "AC1",
+      "x": 84,
+      "y": 239,
+      "description": "Aeroporto Internacional de Rio Branco / Plácido de Castro"
+    },
+    {
+      "id": "PA1",
+      "x": 332,
+      "y": 196,
+      "description": "Aeroporto Internacional de Belém / Val de Cans"
+    }
   ],
   "connections": [
     { "ids": ["RS1", "RS2"], "cost": 0 },
@@ -122,7 +332,13 @@
     { "ids": ["AC1", "RO1"], "cost": 0 }
   ],
   "regionColors": [
-    { "ids": ["SC", "RS", "PR"], "color": "#9fff47" },
-    { "ids": ["SP", "RJ", "ES"], "color": "#f9df27" }
+    { "ids": ["SC", "RS", "PR"], "color": "#D5E8D4" },
+    { "ids": ["SP", "RJ", "ES", "MG"], "color": "#FFF2CC" },
+    {
+      "ids": ["BA", "PI", "PE", "SE", "AL", "PE", "PB", "RN", "CE", "MA"],
+      "color": "#F8CECC"
+    },
+    { "ids": ["MS", "GO", "DF", "MT"], "color": "#D0CEE2" },
+    { "ids": ["RO", "AM", "AC", "RR", "AP", "PA", "TO"], "color": "#FFE6CC" }
   ]
 }

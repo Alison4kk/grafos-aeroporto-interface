@@ -37,9 +37,11 @@
             Montar Rota
           </button>
 
+          <loading-state class="mt-5 animate__animated animate__zoomIn animate__faster" v-if="isLoadingRoutes"/>
+          <empty-state class="mt-4" v-if="!airportRoutes.length && !isLoadingRoutes"/>
           <RouteTable
             :airportRoutes="airportRoutes"
-            :isLoading="isLoadingRoutes"
+            v-if="airportRoutes.length"
           />
         </div>
       </div>
@@ -52,6 +54,8 @@ import { defineComponent } from "vue";
 import { ModelSelect } from "vue-search-select";
 import "vue-search-select/dist/VueSearchSelect.css";
 import data from "@/assets/data.json";
+import LoadingState from '@/components/LoadingState.vue';
+
 import {
   Airport,
   AirportOption,
@@ -61,6 +65,7 @@ import {
 } from "@/types/types";
 import RouteTable from "./components/RouteTable.vue";
 import MapViewer from "./components/MapViewer.vue";
+import EmptyState from "./components/EmptyState.vue";
 import "animate.css";
 
 export default defineComponent({
@@ -69,6 +74,8 @@ export default defineComponent({
     ModelSelect,
     RouteTable,
     MapViewer,
+    LoadingState,
+    EmptyState
   },
   data() {
     return {
@@ -101,7 +108,7 @@ export default defineComponent({
             this.airportRoutes = routes;
             this.isLoadingRoutes = false;
           });
-      }, 2000);
+      }, 20);
     },
   },
   computed: {

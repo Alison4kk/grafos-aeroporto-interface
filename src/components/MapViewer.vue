@@ -20,6 +20,7 @@
           :style="{ left: `${airport.x}px`, top: `${airport.y}px`, 'background-color': airportColors[airport.id]}"
           class="airport"
           :key="key"
+          v-tippy="airport.description"
           @mousedown="draggingAirport = airport"
         >
           {{ airport.id }}
@@ -161,6 +162,12 @@ export default defineComponent({
   cursor: pointer;
   user-select: none;
   z-index: 10;
+  transition: transform 0.2s, box-shadow 0.2s ;
+  backface-visibility: hidden;
+  &:hover {
+    transform: translate(-50%, -50%) scale(1.3);
+    box-shadow: 0px 0px 2px 2px #fdfdfd;
+  }
 }
 
 .connection-line {

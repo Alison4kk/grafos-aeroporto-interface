@@ -19,11 +19,13 @@ type Airport = {
   id: string,
   x: number,
   y: number,
+  description?: string
 }
 
 type AirportRoute = {
-  path: string[],
-  cost: number
+  pos: string,
+  distance: number,
+  path: string
 }
 
 

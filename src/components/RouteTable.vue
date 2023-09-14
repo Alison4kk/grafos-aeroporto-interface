@@ -1,5 +1,31 @@
 <template>
   <div class="py-5">
+    <div class="form-floating mb-3">
+      <input
+        type="text"
+        class="form-control"
+        id="inputSearch"
+        placeholder="Buscar..."
+        v-model="searchValue"
+      />
+      <label for="inputSearch">Buscar...</label>
+    </div>
+
+    <EasyDataTable
+      :headers="headers"
+      :items="routes"
+      :search-field="'path'"
+      :search-value="searchValueDebouced"
+      :rows-per-page="10"
+      buttons-pagination
+      alternating
+    >
+      <template #item-path="{ path }">
+        <div class="text-nowrap">{{path}}</div>
+      </template>
+
+    </EasyDataTable>
+
     <!-- <DataTable class="display">
       <thead class="thead-dark">
         <tr>
@@ -27,48 +53,71 @@
         </tr>
       </tbody>
     </DataTable> -->
-    <DataTable v-if="routes.length" :data="routes" class="display">
+    <!-- <DataTable v-if="routes.length" :data="routes" class="display">
         <thead>
             <tr>
                 <th>A</th>
                 <th>B</th>
             </tr>
         </thead>
-    </DataTable>
-    <empty-state v-if="!routes.length && !isLoading"/>
-    <loading-state class="animate__animated animate__zoomIn" v-if="isLoading"/>
+    </DataTable> -->
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import {AirportRoutes} from '@/types/types'
-import LoadingState from './LoadingState.vue'
-import EmptyState from './EmptyState.vue'
-import DataTable from 'datatables.net-vue3';
-import DataTablesCore from 'datatables.net';
+import { defineComponent, PropType, ref } from "vue";
+import { AirportRoutes } from "@/types/types";
+import { directive } from 'vue-tippy'
+import type { Header, Item } from "vue3-easy-data-table";
+import debounce from 'lodash.debounce'
 
-DataTable.use(DataTablesCore);
+const headers: Header[] = [
+  { text: "Pos.", value: "pos", sortable: true },
+  { text: "Distancia", value: "distance" },
+  { text: "Caminho", value: "path" },
+];
 
 export default defineComponent({
-  props: ['airportRoutes', 'isLoading'],
-  components: {
-    LoadingState,
-    EmptyState,
-    DataTable
+  props: {
+    airportRoutes: {
+      required: true,
+      type: Array as PropType<AirportRoutes>,
+    },
   },
   data() {
     return {
-    }
+      headers: headers,
+      searchValue: '' as string,
+      searchValueDebouced: '' as string,
+      updateSearchValue: null as CallableFunction | null,
+    };
   },
   computed: {
-    routes(): any {
-      return this.airportRoutes ?? [] as AirportRoutes
+    routes(): Item[] {
+      return this.airportRoutes.map((airportRoute) => {
+        return airportRoute;
+      });
+    },
+  },
+  mounted() {
+    this.updateSearchValue = debounce(() => {
+      this.searchValueDebouced = this.searchValue
+    }, 200);
+  },
+  directives: {
+    tippy: directive
+  },
+  watch: {
+    searchValue() {
+      if (typeof this.updateSearchValue == 'function')
+        this.updateSearchValue();
     }
   }
-})
+});
 </script>
 
-<style scoped>
-@import 'datatables.net-dt';
+<style lang="scss">
+.pagination__rows-per-page {
+  display: none !important;
+}
 </style>
