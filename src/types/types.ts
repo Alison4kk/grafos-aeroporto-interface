@@ -11,8 +11,9 @@ type Conection = {
 type ConnectionLine = {
   x: number,
   y: number,
-  width: number
-  angle: number
+  width: number,
+  angle: number,
+  isActive: boolean
 }
 
 type Airport = {
@@ -34,7 +35,7 @@ type RegionColor = {
   color: string
 }
 
-type StateColor = {[key: string]: string}
+type KeyValueString = {[key: string]: string}
 
 type AirportRoutes = AirportRoute[];
-export { AirportOption, AirportRoute, AirportRoutes, Airport, Conection, ConnectionLine, RegionColor, StateColor }
+export { AirportOption, AirportRoute, AirportRoutes, Airport, Conection, ConnectionLine, RegionColor, KeyValueString }

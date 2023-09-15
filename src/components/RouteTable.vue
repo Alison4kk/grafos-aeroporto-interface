@@ -21,46 +21,10 @@
       alternating
     >
       <template #item-path="{ path }">
-        <div class="text-nowrap">{{path}}</div>
+        <div @mouseover="$emit('activeRouteSelect', path)" @mouseleave="$emit('activeRouteSelect', [])" class="route-item">{{path}}</div>
       </template>
 
     </EasyDataTable>
-
-    <!-- <DataTable class="display">
-      <thead class="thead-dark">
-        <tr>
-          <th scope="col" style="width: 5%">Nº</th>
-          <th scope="col">Rota</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(route, key) in routes" :key="key">
-          <td>{{key + 1}}º</td>
-          <td>
-            <span v-for="(airport, key2) in route" :key="key2">
-              {{airport}}
-              <span v-if="key2 != route.length - 1">
-                &nbsp;
-                <i class="fa fa-arrow-right"></i>
-                &nbsp;
-              </span>
-              <span v-if="key2 == route.length - 1">
-                &nbsp;
-                <i class="fa fa-flag-checkered"></i>
-              </span>
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </DataTable> -->
-    <!-- <DataTable v-if="routes.length" :data="routes" class="display">
-        <thead>
-            <tr>
-                <th>A</th>
-                <th>B</th>
-            </tr>
-        </thead>
-    </DataTable> -->
   </div>
 </template>
 
@@ -82,7 +46,7 @@ export default defineComponent({
     airportRoutes: {
       required: true,
       type: Array as PropType<AirportRoutes>,
-    },
+    }
   },
   data() {
     return {
@@ -119,5 +83,18 @@ export default defineComponent({
 <style lang="scss">
 .pagination__rows-per-page {
   display: none !important;
+}
+
+.route-item {
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 10px;
+  transition: background-color 0.2s ease-out;
+  cursor: pointer;
+  background-color: rgb(187, 219, 255);
+
+  &:hover {
+    background-color: rgb(142, 187, 238);
+  }
 }
 </style>

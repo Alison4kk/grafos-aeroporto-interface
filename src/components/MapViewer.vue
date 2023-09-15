@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex align-items-center justify-content-center">
+    <div class="">
       <div
         ref="map-container"
         id="map-container"
@@ -29,13 +29,14 @@
           class="connection-line"
           v-for="(line, key) in conectionLines"
           :key="key"
+          :class="{'active': line.isActive}"
           :style="{left: `${line.x}px`, top: `${line.y}px`, width: `${line.width}px`, transform: `rotate(${line.angle}deg)`}"
         >
 
         </div>
       </div>
     </div>
-    <button class="btn btn-outline-dark" @click="copyAirportsJSON">
+    <button class="btn btn-outline-dark d-none" @click="copyAirportsJSON">
       Copy JSON
     </button>
   </div>
@@ -43,7 +44,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { Airport , Conection, ConnectionLine, RegionColor, StateColor } from "@/types/types";
+import { Airport , Conection, ConnectionLine, RegionColor, KeyValueString } from "@/types/types";
 import { directive } from 'vue-tippy'
 import 'tippy.js/dist/tippy.css'
 
@@ -51,6 +52,7 @@ export default defineComponent({
   data() {
     return {
       draggingAirport: null as Airport | null,
+      airportColors: {} as KeyValueString
     };
   },
   props: {
@@ -66,7 +68,10 @@ export default defineComponent({
       required: true,
       type: Array as PropType<RegionColor[]>,
     },
-
+    activeRoute: {
+      required: true,
+      type: Array as PropType<string[]>,
+    },
   },
   methods: {
     moveDraggingAirport(event: MouseEvent) {
@@ -82,6 +87,22 @@ export default defineComponent({
     },
     copyAirportsJSON() {
       navigator.clipboard.writeText(JSON.stringify({airports: this.airports, connections: this.connections, regionColors: this.regionColors}));
+    },
+    setAirportColors() {
+      let stateColors = {} as {[key: string]: string};
+      this.regionColors.forEach((region) => {
+        region.ids.forEach((state) => {
+          stateColors[state] = region.color;
+        } )
+      });
+
+      let airportColors = {} as {[key: string]: string};
+      this.airports.forEach(airport => {
+        let uf = airport.id.substring(0, 2);
+        airportColors[airport.id] = stateColors[uf];
+      });
+
+      this.airportColors = airportColors;
     }
   },
   computed: {
@@ -105,35 +126,26 @@ export default defineComponent({
         const salopeInRadian = Math.atan2((y1-y2), (x1-x2));
         const salodeInDegrees = (salopeInRadian * 180) / Math.PI;
 
+        const routeToSearch = this.activeRoute.join('-');
+        const isActive = (routeToSearch.indexOf(`${airport1.id}-${airport2.id}`) != -1) || (routeToSearch.indexOf(`${airport2.id}-${airport1.id}`) != -1) ;
+
         conectionLines.push({
           x: xMid - (distance/2),
           y: yMid,
           width: distance,
-          angle: salodeInDegrees
+          angle: salodeInDegrees,
+          isActive
         });
       });
 
       return conectionLines;
-    },
-    airportColors() {
-      let stateColors = {} as {[key: string]: string};
-      this.regionColors.forEach((region) => {
-        region.ids.forEach((state) => {
-          stateColors[state] = region.color;
-        } )
-      });
-
-      let airportColors = {} as {[key: string]: string};
-      this.airports.forEach(airport => {
-        let uf = airport.id.substring(0, 2);
-        airportColors[airport.id] = stateColors[uf];
-      });
-
-      return airportColors;
     }
   },
   directives: {
     tippy: directive
+  },
+  created() {
+    this.setAirportColors();
   }
 });
 </script>
@@ -175,10 +187,11 @@ export default defineComponent({
   background-color: rgba(114, 114, 114, 0.603);
   position: absolute;
   z-index: 9;
+  transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 
   &.active {
-    background-color: rgb(61 255 12);
-    box-shadow: 0px 0px 7px 1px #ffeb01;
+    background-color: rgb(184, 6, 6);
+    box-shadow: 0px 0px 7px 1px #d52710;
   }
 }
 </style>

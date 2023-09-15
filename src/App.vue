@@ -1,12 +1,13 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col-12 col-lg-7">
+      <div class="col-12 col-lg-7 d-flex align-items-center justify-content-center overflow-auto">
         <map-viewer
           class="animate__animated animate__fadeIn animate__delay-1s"
           :airports="airports"
           :connections="connections"
           :regionColors="regionColors"
+          :activeRoute="activeRoute"
         />
       </div>
       <div class="col-12 col-lg-5">
@@ -41,6 +42,7 @@
           <empty-state class="mt-4" v-if="!airportRoutes.length && !isLoadingRoutes"/>
           <RouteTable
             :airportRoutes="airportRoutes"
+            @active-route-select="setActiveRoute"
             v-if="airportRoutes.length"
           />
         </div>
@@ -87,6 +89,7 @@ export default defineComponent({
       selectedOptionEnd: { value: "", text: "" } as AirportOption,
       airportRoutes: [] as AirportRoutes,
       isLoadingRoutes: false,
+      activeRoute: [] as string[]
     };
   },
   mounted() {
@@ -110,6 +113,9 @@ export default defineComponent({
           });
       }, 20);
     },
+    setActiveRoute(incomingRoute: string | string[]) {
+      this.activeRoute = (incomingRoute instanceof Array) ? incomingRoute : incomingRoute.split('-');
+    }
   },
   computed: {
     airportOptionsEnd(): AirportOption[] {
