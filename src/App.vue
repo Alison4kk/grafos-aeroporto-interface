@@ -12,7 +12,7 @@
       </div>
       <div class="col-12 col-lg-5">
         <div class="h-100 shadow-lg p-4 animate__animated animate__zoomInDown">
-          <div class="d-flex justify-content-between gap-2">
+          <div class="">
             <div class="mb-3 w-100">
               <label for="inputStart" class="form-label">Partida</label>
               <ModelSelect
@@ -98,7 +98,7 @@ export default defineComponent({
   methods: {
     loadAirportOptions() {
       this.airportOptionsStart = this.airports.map((airport) => {
-        return { value: airport.id, text: airport.id };
+        return { value: airport.id, text: `${airport.id} - ${airport.description}` };
       });
     },
     pickRoutes() {
