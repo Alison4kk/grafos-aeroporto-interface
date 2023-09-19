@@ -15,16 +15,19 @@
           height="600"
           alt=""
         />
-        <div
+        <tippy
           v-for="(airport, key) in airports"
+          tag="div" content-tag="div"
+          content-class="airport"
           :style="{ left: `${airport.x}px`, top: `${airport.y}px`, 'background-color': airportColors[airport.id]}"
-          class="airport"
           :key="key"
           v-tippy="airport.description"
           @mousedown="draggingAirport = airport"
         >
-          {{ airport.id }}
-        </div>
+          <template #default>{{ airport.id }}</template>
+          <template #content>Hi!</template>
+          
+        </tippy>
         <div
           class="connection-line"
           v-for="(line, key) in conectionLines"
@@ -39,13 +42,14 @@
     <button class="btn btn-outline-dark d-none" @click="copyAirportsJSON">
       Copy JSON
     </button>
+
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { Airport , Conection, ConnectionLine, RegionColor, KeyValueString } from "@/types/types";
-import { directive } from 'vue-tippy'
+import { directive, Tippy } from 'vue-tippy'
 import 'tippy.js/dist/tippy.css'
 
 export default defineComponent({
@@ -55,6 +59,7 @@ export default defineComponent({
       airportColors: {} as KeyValueString
     };
   },
+  components: {Tippy},
   props: {
     airports: {
       required: true,
