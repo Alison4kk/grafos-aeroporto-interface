@@ -1,6 +1,6 @@
 type AirportOption = {
   value: string,
-  text: string,
+  text?: string,
 }
 
 type Conection = {

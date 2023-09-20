@@ -1,13 +1,15 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col-12 col-lg-7 d-flex align-items-center justify-content-center overflow-auto">
+      <div class="col-12 col-lg-7 d-flex align-items-center justify-content-center">
         <map-viewer
           class="animate__animated animate__fadeIn animate__delay-1s"
           :airports="airports"
           :connections="connections"
           :regionColors="regionColors"
           :activeRoute="activeRoute"
+          @set-start-airport="setOptionStartAirport"
+          @set-end-airport="setOptionEndAirport"
         />
       </div>
       <div class="col-12 col-lg-5">
@@ -85,8 +87,8 @@ export default defineComponent({
       airports: data.airports as Airport[],
       connections: data.connections as Conection[],
       regionColors: data.regionColors as RegionColor[],
-      selectedOptionStart: { value: "", text: "" } as AirportOption,
-      selectedOptionEnd: { value: "", text: "" } as AirportOption,
+      selectedOptionStart: { value: ""} as AirportOption,
+      selectedOptionEnd: { value: ""} as AirportOption,
       airportRoutes: [] as AirportRoutes,
       isLoadingRoutes: false,
       activeRoute: [] as string[]
@@ -115,6 +117,18 @@ export default defineComponent({
     },
     setActiveRoute(incomingRoute: string | string[]) {
       this.activeRoute = (incomingRoute instanceof Array) ? incomingRoute : incomingRoute.split('-');
+    },
+    setOptionStartAirport(id: string) {
+      if (this.selectedOptionEnd.value == id) {
+        this.selectedOptionEnd = {value: ""}
+      }
+      this.selectedOptionStart = {value: id};
+    },
+    setOptionEndAirport(id: string) {
+      if (this.selectedOptionStart.value == id) {
+        this.selectedOptionStart = {value: ""}
+      }
+      this.selectedOptionEnd = {value: id};
     }
   },
   computed: {
@@ -134,7 +148,7 @@ export default defineComponent({
   watch: {
     selectedOptionStart() {
       if (this.selectedOptionStart.value == this.selectedOptionEnd.value) {
-        this.selectedOptionEnd = { value: "", text: "" };
+        this.selectedOptionEnd = { value: ""};
       }
     },
   },
