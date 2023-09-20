@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "push-dist": "git subtree push --prefix dist https://github.com/Alison4kk/grafos-aeroporto-interface.git gh-page"
+    "push-dist": "git subtree push --prefix dist https://github.com/Alison4kk/grafos-aeroporto-interface.git gh-page",
+    "build-publish": "npm run build && git add . && git commit -m \"build\" && git push && git subtree push --prefix dist https://github.com/Alison4kk/grafos-aeroporto-interface.git gh-page"
   },
   "dependencies": {
     "animate.css": "^4.1.1",
