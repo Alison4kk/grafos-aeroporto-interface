@@ -71,6 +71,7 @@ import RouteTable from "./components/RouteTable.vue";
 import MapViewer from "./components/MapViewer.vue";
 import EmptyState from "./components/EmptyState.vue";
 import "animate.css";
+import { Path, Point, Traverser } from "./libraries/TraversalAlgorithm";
 
 export default defineComponent({
   name: "App",
@@ -106,14 +107,78 @@ export default defineComponent({
     pickRoutes() {
       this.isLoadingRoutes = true;
       this.airportRoutes = [];
+      let points: Point[] = [];
+
+      this.airports.forEach((airport) => {
+        points.push({id: airport.id, conections: []});
+      });
+
+
+      const initialPoint = points.find((point) => point.id == this.selectedOptionStart.value);
+      const finalPoint = points.find((point) => point.id == this.selectedOptionEnd.value);
+
+      this.connections.forEach((con) => {
+        const id1 = con.ids[0];
+        const id2 = con.ids[1];
+        const airport1:Airport | undefined =  this.airports.find((airport) => airport.id == id1);
+        const airport2:Airport | undefined =  this.airports.find((airport) => airport.id == id2);
+        if (!airport1 || !airport2) return;
+
+        const point1 = points.find((point) => point.id == id1);
+        const point2 = points.find((point) => point.id == id2);
+        if (!point1 || !point2) return;
+
+        const x1 = airport1.x;
+        const y1 = airport1.y;
+        const x2 = airport2.x;
+        const y2 = airport2.y;
+
+        const distance = Math.sqrt(
+          (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
+        );
+
+        point1.conections.push({point: point2, cost: distance});
+        point2.conections.push({point: point1, cost: distance});
+      });
+
+      if (!initialPoint || !finalPoint) return;
+      const traverser = new Traverser();
+      traverser.setPoints(points);
+      traverser.setInitialPoint(initialPoint);
+      traverser.setFinalPoint(finalPoint);
+
+
       setTimeout(() => {
-        fetch("api/routes.json")
-          .then((response) => response.json())
-          .then((routes: AirportRoutes) => {
-            this.airportRoutes = routes;
-            this.isLoadingRoutes = false;
-          });
-      }, 20);
+        traverser.traverse();
+        let validPaths: Path[] = [];
+
+        validPaths = traverser.getValidPaths();
+        console.log('Qtd de rotas: ',  validPaths.length);
+
+        validPaths = validPaths.sort((a: Path, b: Path) => a.distance - b.distance);
+        validPaths = validPaths.slice(0, 10000);
+        this.isLoadingRoutes = false;
+        this.airportRoutes = [];
+
+        validPaths.forEach((path, index) => {
+          this.airportRoutes.push({pos: index.toString(), distance: Math.round(path.distance), path: path.sequence})
+        })
+
+      }, 1000);
+
+
+      // setTimeout(() => {
+      //   fetch("api/routes.json")
+      //     .then((response) => response.json())
+      //     .then((routes: AirportRoutes) => {
+      //       this.airportRoutes = routes;
+      //       this.isLoadingRoutes = false;
+      //     });
+      // }, 20);
+
+
+
+
     },
     setActiveRoute(incomingRoute: string | string[]) {
       this.activeRoute = (incomingRoute instanceof Array) ? incomingRoute : incomingRoute.split('-');
