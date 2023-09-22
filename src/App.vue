@@ -8,6 +8,8 @@
           :connections="connections"
           :regionColors="regionColors"
           :activeRoute="activeRoute"
+          :selected-option-start="selectedOptionStart"
+          :selected-option-end="selectedOptionEnd"
           @set-start-airport="setOptionStartAirport"
           @set-end-airport="setOptionEndAirport"
         />
@@ -39,6 +41,12 @@
           >
             Montar Rota
           </button>
+          
+          <div v-if="airportRoutes.length && !isLoadingRoutes">
+            <p>Qtd de Rotas: {{ calculatedPathsCount }}<br>
+              Tempo de Calculo: {{ calculatedTime }}
+            </p>
+          </div>
 
           <loading-state class="mt-5 animate__animated animate__zoomIn animate__faster" v-if="isLoadingRoutes"/>
           <empty-state class="mt-4" v-if="!airportRoutes.length && !isLoadingRoutes"/>
@@ -92,7 +100,9 @@ export default defineComponent({
       selectedOptionEnd: { value: ""} as AirportOption,
       airportRoutes: [] as AirportRoutes,
       isLoadingRoutes: false,
-      activeRoute: [] as string[]
+      activeRoute: [] as string[],
+      calculatedPathsCount: 0,
+      calculatedTime: 0
     };
   },
   mounted() {
@@ -147,13 +157,17 @@ export default defineComponent({
       traverser.setInitialPoint(initialPoint);
       traverser.setFinalPoint(finalPoint);
 
-
       setTimeout(() => {
+      const startDate = new Date(); 
+       const startTimeStamp = startDate.getTime();
         traverser.traverse();
         let validPaths: Path[] = [];
 
         validPaths = traverser.getValidPaths();
-        console.log('Qtd de rotas: ',  validPaths.length);
+        this.calculatedPathsCount = validPaths.length;
+
+        const stoptDate = new Date(); 
+        const stopTimeStamp = stoptDate.getTime();
 
         validPaths = validPaths.sort((a: Path, b: Path) => a.distance - b.distance);
         validPaths = validPaths.slice(0, 10000);
@@ -164,7 +178,8 @@ export default defineComponent({
           this.airportRoutes.push({pos: index.toString(), distance: Math.round(path.distance), path: path.sequence})
         })
 
-      }, 1000);
+        this.calculatedTime = (stopTimeStamp - startTimeStamp) / 1000;
+      }, 30);
 
 
       // setTimeout(() => {

@@ -1,5 +1,5 @@
 <template>
-  <div class="py-5">
+  <div class="py-2">
     <div class="form-floating mb-3">
       <input
         type="text"

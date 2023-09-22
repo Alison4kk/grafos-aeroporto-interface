@@ -15,7 +15,7 @@ app.use(
     defaultProps: {
       allowHTML: true,
       placement: 'top',
-      delay: [600, 50]
+      delay: [300, 50],
     }, // => Global default options * see all props
   }
 )

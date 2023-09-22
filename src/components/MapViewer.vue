@@ -24,6 +24,10 @@
             'background-color': airportColors[airport.id],
           }"
           class="airport"
+          :class="{
+            'selected-end': airport.id === selectedOptionEnd.value,
+            'selected-start': airport.id === selectedOptionStart.value,
+          }"
           :key="key"
           @mousedown="draggingAirport = airport"
           tag="div"
@@ -70,8 +74,9 @@ import {
   ConnectionLine,
   RegionColor,
   KeyValueString,
+  AirportOption
 } from "@/types/types";
-import { directive, Tippy } from "vue-tippy";
+import { directive } from "vue-tippy";
 import "tippy.js/dist/tippy.css";
 
 export default defineComponent({
@@ -98,6 +103,14 @@ export default defineComponent({
     activeRoute: {
       required: true,
       type: Array as PropType<string[]>,
+    },
+    selectedOptionStart: {
+      required: true,
+      type: Object as PropType<AirportOption>,
+    },
+    selectedOptionEnd: {
+      required: true,
+      type: Object as PropType<AirportOption>,
     },
   },
   methods: {
@@ -227,6 +240,13 @@ export default defineComponent({
     transform: translate(-50%, -50%) scale(1.3);
     box-shadow: 0px 0px 2px 2px #fdfdfd;
   }
+
+  &.selected-start {
+    box-shadow: 0px 0px 7px 2px #40a32c;
+  }
+  &.selected-end {
+    box-shadow: 0px 0px 7px 2px #c21717;
+  }
 }
 
 .connection-line {
@@ -277,4 +297,6 @@ export default defineComponent({
     --bs-btn-disabled-border-color: #dc3545;
   }
 }
+
+
 </style>
