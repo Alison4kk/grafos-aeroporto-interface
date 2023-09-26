@@ -1,9 +1,11 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col-12 col-lg-7 d-flex align-items-center justify-content-center">
+      <div
+        class="col-12 col-lg-7 d-flex align-items-center justify-content-center"
+      >
         <map-viewer
-          class="animate__animated animate__fadeIn animate__delay-1s"
+          class=""
           :airports="airports"
           :connections="connections"
           :regionColors="regionColors"
@@ -15,7 +17,7 @@
         />
       </div>
       <div class="col-12 col-lg-5">
-        <div class="h-100 shadow-lg p-4 animate__animated animate__zoomInDown">
+        <div class="h-100 shadow-lg p-4">
           <div class="">
             <div class="mb-3 w-100">
               <label for="inputStart" class="form-label">Partida</label>
@@ -34,22 +36,75 @@
               />
             </div>
           </div>
+
+          <div class="form-group mt-3">
+            <label for="input-qtd-rotas" class="form-label"
+              >Metodo de Pesquisa:</label
+            >
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                id="input-radio-pesquisa-rapida"
+                value="rapida"
+                v-model="tipoPesquisa"
+                checked
+              />
+              <label class="form-check-label" for="input-radio-pesquisa-rapida">
+                Pesquisa Rapida
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                value="total"
+                id="input-radio-pesquisa-total"
+                v-model="tipoPesquisa"
+              />
+              <label class="form-check-label" for="input-radio-pesquisa-total">
+                Pesquisa Total (Lento)
+              </label>
+            </div>
+          </div>
+          <div class="form-group mt-3" v-if="tipoPesquisa == 'rapida'">
+            <label for="input-qtd-rotas" class="form-label"
+              >Quantidade de Rotas: {{ pathsLimit }}</label
+            >
+            <input
+              type="range"
+              class="form-range"
+              min="100"
+              max="10000"
+              step="100"
+              id="input-qtd-rotas"
+              v-model="pathsLimit"
+            />
+          </div>
+
           <button
             :disabled="!canpickRoutes"
             @click="pickRoutes"
-            class="btn btn-primary w-100"
+            class="btn btn-primary w-100 mt-3"
           >
             Montar Rota
           </button>
-          
+
           <div v-if="airportRoutes.length && !isLoadingRoutes">
-            <p>Qtd de Rotas: {{ calculatedPathsCount }}<br>
+            <p>
+              Qtd de Rotas: {{ calculatedPathsCount }}<br />
               Tempo de Calculo: {{ calculatedTime }}
             </p>
           </div>
 
-          <loading-state class="mt-5 animate__animated animate__zoomIn animate__faster" v-if="isLoadingRoutes"/>
-          <empty-state class="mt-4" v-if="!airportRoutes.length && !isLoadingRoutes"/>
+          <loading-state
+            class="mt-5 animate__animated animate__zoomIn animate__faster"
+            v-if="isLoadingRoutes"
+          />
+          <empty-state
+            class="mt-4"
+            v-if="!airportRoutes.length && !isLoadingRoutes"
+          />
           <RouteTable
             :airportRoutes="airportRoutes"
             @active-route-select="setActiveRoute"
@@ -66,7 +121,7 @@ import { defineComponent } from "vue";
 import { ModelSelect } from "vue-search-select";
 import "vue-search-select/dist/VueSearchSelect.css";
 import data from "@/assets/data.json";
-import LoadingState from '@/components/LoadingState.vue';
+import LoadingState from "@/components/LoadingState.vue";
 
 import {
   Airport,
@@ -80,6 +135,7 @@ import MapViewer from "./components/MapViewer.vue";
 import EmptyState from "./components/EmptyState.vue";
 import "animate.css";
 import { Path, Point, Traverser } from "./libraries/TraversalAlgorithm";
+import { OrderedSet, Map } from "immutable";
 
 export default defineComponent({
   name: "App",
@@ -88,7 +144,7 @@ export default defineComponent({
     RouteTable,
     MapViewer,
     LoadingState,
-    EmptyState
+    EmptyState,
   },
   data() {
     return {
@@ -96,13 +152,15 @@ export default defineComponent({
       airports: data.airports as Airport[],
       connections: data.connections as Conection[],
       regionColors: data.regionColors as RegionColor[],
-      selectedOptionStart: { value: ""} as AirportOption,
-      selectedOptionEnd: { value: ""} as AirportOption,
+      selectedOptionStart: { value: "" } as AirportOption,
+      selectedOptionEnd: { value: "" } as AirportOption,
       airportRoutes: [] as AirportRoutes,
       isLoadingRoutes: false,
       activeRoute: [] as string[],
+      pathsLimit: 100,
+      tipoPesquisa: 'rapida' as 'rapida' | 'total',
       calculatedPathsCount: 0,
-      calculatedTime: 0
+      calculatedTime: 0,
     };
   },
   mounted() {
@@ -111,7 +169,10 @@ export default defineComponent({
   methods: {
     loadAirportOptions() {
       this.airportOptionsStart = this.airports.map((airport) => {
-        return { value: airport.id, text: `${airport.id} - ${airport.description}` };
+        return {
+          value: airport.id,
+          text: `${airport.id} - ${airport.description}`,
+        };
       });
     },
     pickRoutes() {
@@ -120,18 +181,30 @@ export default defineComponent({
       let points: Point[] = [];
 
       this.airports.forEach((airport) => {
-        points.push({id: airport.id, conections: []});
+        points.push({
+          id: airport.id,
+          conections: [],
+          x: airport.x,
+          y: airport.y,
+        });
       });
 
-
-      const initialPoint = points.find((point) => point.id == this.selectedOptionStart.value);
-      const finalPoint = points.find((point) => point.id == this.selectedOptionEnd.value);
+      const initialPoint = points.find(
+        (point) => point.id == this.selectedOptionStart.value
+      );
+      const finalPoint = points.find(
+        (point) => point.id == this.selectedOptionEnd.value
+      );
 
       this.connections.forEach((con) => {
         const id1 = con.ids[0];
         const id2 = con.ids[1];
-        const airport1:Airport | undefined =  this.airports.find((airport) => airport.id == id1);
-        const airport2:Airport | undefined =  this.airports.find((airport) => airport.id == id2);
+        const airport1: Airport | undefined = this.airports.find(
+          (airport) => airport.id == id1
+        );
+        const airport2: Airport | undefined = this.airports.find(
+          (airport) => airport.id == id2
+        );
         if (!airport1 || !airport2) return;
 
         const point1 = points.find((point) => point.id == id1);
@@ -147,69 +220,64 @@ export default defineComponent({
           (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
         );
 
-        point1.conections.push({point: point2, cost: distance});
-        point2.conections.push({point: point1, cost: distance});
+        point1.conections.push({ point: point2, cost: distance });
+        point2.conections.push({ point: point1, cost: distance });
       });
 
       if (!initialPoint || !finalPoint) return;
-      const traverser = new Traverser();
-      traverser.setPoints(points);
-      traverser.setInitialPoint(initialPoint);
-      traverser.setFinalPoint(finalPoint);
+      const traverser = new Traverser(points, initialPoint, finalPoint);
+      if (this.tipoPesquisa == 'rapida') {
+        traverser.setPathsLimit(this.pathsLimit);
+      }
 
       setTimeout(() => {
-      const startDate = new Date(); 
-       const startTimeStamp = startDate.getTime();
+        const startDate = new Date();
+        const startTimeStamp = startDate.getTime();
         traverser.traverse();
         let validPaths: Path[] = [];
 
         validPaths = traverser.getValidPaths();
         this.calculatedPathsCount = validPaths.length;
 
-        const stoptDate = new Date(); 
+        const stoptDate = new Date();
         const stopTimeStamp = stoptDate.getTime();
 
-        validPaths = validPaths.sort((a: Path, b: Path) => a.distance - b.distance);
-        validPaths = validPaths.slice(0, 10000);
+        validPaths = validPaths.sort(
+          (a: Path, b: Path) => a.distance - b.distance
+        );
+        validPaths = validPaths.slice(0, 100000);
         this.isLoadingRoutes = false;
         this.airportRoutes = [];
 
         validPaths.forEach((path, index) => {
-          this.airportRoutes.push({pos: index.toString(), distance: Math.round(path.distance), path: path.sequence})
-        })
+          this.airportRoutes.push({
+            pos: index.toString(),
+            distance: Math.round(path.distance),
+            path: path.sequence,
+          });
+        });
 
         this.calculatedTime = (stopTimeStamp - startTimeStamp) / 1000;
       }, 30);
-
-
-      // setTimeout(() => {
-      //   fetch("api/routes.json")
-      //     .then((response) => response.json())
-      //     .then((routes: AirportRoutes) => {
-      //       this.airportRoutes = routes;
-      //       this.isLoadingRoutes = false;
-      //     });
-      // }, 20);
-
-
-
-
     },
     setActiveRoute(incomingRoute: string | string[]) {
-      this.activeRoute = (incomingRoute instanceof Array) ? incomingRoute : incomingRoute.split('-');
+      this.activeRoute =
+        incomingRoute instanceof Array
+          ? incomingRoute
+          : incomingRoute.split("-");
     },
     setOptionStartAirport(id: string) {
       if (this.selectedOptionEnd.value == id) {
-        this.selectedOptionEnd = {value: ""}
+        this.selectedOptionEnd = { value: "" };
       }
-      this.selectedOptionStart = {value: id};
+      this.selectedOptionStart = { value: id };
     },
     setOptionEndAirport(id: string) {
       if (this.selectedOptionStart.value == id) {
-        this.selectedOptionStart = {value: ""}
+        this.selectedOptionStart = { value: "" };
       }
-      this.selectedOptionEnd = {value: id};
-    }
+      this.selectedOptionEnd = { value: id };
+    },
   },
   computed: {
     airportOptionsEnd(): AirportOption[] {
@@ -228,7 +296,7 @@ export default defineComponent({
   watch: {
     selectedOptionStart() {
       if (this.selectedOptionStart.value == this.selectedOptionEnd.value) {
-        this.selectedOptionEnd = { value: ""};
+        this.selectedOptionEnd = { value: "" };
       }
     },
   },
