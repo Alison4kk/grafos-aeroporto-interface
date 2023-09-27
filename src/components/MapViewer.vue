@@ -4,7 +4,7 @@
       <div
         ref="map-container"
         id="map-container"
-        :class="{'showing-active-route': activeRoute.length}"
+        :class="{ 'showing-active-route': activeRoute.length }"
         @mouseup="draggingAirport = null"
         @mousemove="moveDraggingAirport"
       >
@@ -38,10 +38,27 @@
           <template #default>{{ airport.id }}</template>
           <template #content>
             <div class="p-1">
-              <div class="text-center">{{airport.description}}</div>
+              <div class="text-center">{{ airport.description }}</div>
               <div class="d-flex gap-2 mt-2">
-                <button class="btn btn-set-start btn-sm flex-grow-1" @click="$emit('setStartAirport', airport.id)">Partida</button>
-                <button class="btn btn-set-end btn-sm flex-grow-1" @click="$emit('setEndAirport', airport.id)">Destino</button>
+                <button
+                  class="btn btn-set-start btn-sm flex-grow-1"
+                  @click="$emit('setStartAirport', airport.id)"
+                >
+                  Partida
+                </button>
+                <button
+                  class="btn btn-set-end btn-sm flex-grow-1"
+                  @click="$emit('setEndAirport', airport.id)"
+                >
+                  Destino
+                </button>
+                <button
+                  class="btn btn-add-connection btn-sm flex-grow-0"
+                  v-if="selectedOptionStart.value != '' && selectedOptionStart.value != airport.id"
+                  @click="createConnectionWithSelected(airport.id)"
+                >
+                  <i class="fa fa-plus-circle"></i>
+                </button>
               </div>
             </div>
           </template>
@@ -50,6 +67,7 @@
           class="connection-line"
           v-for="(line, key) in conectionLines"
           :key="key"
+          @click="$emit('removeConnection', line.connection)"
           :class="{ active: line.isActive }"
           :style="{
             left: `${line.x}px`,
@@ -74,10 +92,11 @@ import {
   ConnectionLine,
   RegionColor,
   KeyValueString,
-  AirportOption
+  AirportOption,
 } from "@/types/types";
 import { directive } from "vue-tippy";
 import "tippy.js/dist/tippy.css";
+import { distanceBetween2Points } from "@/libraries/Utils";
 
 export default defineComponent({
   data() {
@@ -150,12 +169,22 @@ export default defineComponent({
 
       this.airportColors = airportColors;
     },
+    createConnectionWithSelected(endId: string) {
+      if (this.selectedOptionStart.value == '' || this.selectedOptionStart.value == endId) return;
+
+      const newConnection = {
+        ids: [this.selectedOptionStart.value, endId],
+        cost: 0
+      } as Conection;
+
+      this.$emit('addConnection', newConnection);
+    }
   },
   computed: {
     conectionLines(): ConnectionLine[] {
       let conectionLines = [] as ConnectionLine[];
 
-      this.connections.forEach((con, index) => {
+      this.connections.forEach((con) => {
         const airport1 = this.airports.find(
           (airport) => airport.id == con.ids[0]
         );
@@ -169,9 +198,8 @@ export default defineComponent({
         const x2 = airport2.x;
         const y2 = airport2.y;
 
-        const distance = Math.sqrt(
-          (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
-        );
+        const distance = distanceBetween2Points(x1, y1, x2, y2);
+
         const xMid = (x1 + x2) / 2;
         const yMid = (y1 + y2) / 2;
 
@@ -189,6 +217,7 @@ export default defineComponent({
           width: distance,
           angle: salodeInDegrees,
           isActive,
+          connection: con,
         });
       });
 
@@ -254,11 +283,15 @@ export default defineComponent({
   background-color: rgba(114, 114, 114, 0.603);
   position: absolute;
   z-index: 9;
-  transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out, opacity 0.5s ease-in-out ;
 
   &.active {
     background-color: rgb(184, 6, 6);
     box-shadow: 0px 0px 7px 1px #d52710;
+  }
+
+  &:hover {
+    cursor: no-drop;
   }
 }
 
@@ -270,7 +303,7 @@ export default defineComponent({
     --bs-btn-hover-color: #ffffff;
     --bs-btn-hover-bg: #1d8023;
     --bs-btn-hover-border-color: #1b6320;
-    --bs-btn-focus-shadow-rgb: 225,83,97;
+    --bs-btn-focus-shadow-rgb: 225, 83, 97;
     --bs-btn-active-color: #fff;
     --bs-btn-active-bg: #1f9626;
     --bs-btn-active-border-color: #0e3711;
@@ -287,7 +320,7 @@ export default defineComponent({
     --bs-btn-hover-color: #fff;
     --bs-btn-hover-bg: #bb2d3b;
     --bs-btn-hover-border-color: #b02a37;
-    --bs-btn-focus-shadow-rgb: 225,83,97;
+    --bs-btn-focus-shadow-rgb: 225, 83, 97;
     --bs-btn-active-color: #fff;
     --bs-btn-active-bg: #b02a37;
     --bs-btn-active-border-color: #a52834;
@@ -296,7 +329,22 @@ export default defineComponent({
     --bs-btn-disabled-bg: #dc3545;
     --bs-btn-disabled-border-color: #dc3545;
   }
+
+  &.btn-add-connection {
+    --bs-btn-color: #ffffff;
+    --bs-btn-bg: #2196e4;
+    --bs-btn-border-color: #186ba1;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #2196e4;
+    --bs-btn-hover-border-color: #2196e4;
+    --bs-btn-focus-shadow-rgb: 225, 83, 97;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #2196e4;
+    --bs-btn-active-border-color: #114466;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #186ba1;
+    --bs-btn-disabled-border-color: #186ba1;
+  }
 }
-
-
 </style>

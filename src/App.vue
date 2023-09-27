@@ -14,10 +14,12 @@
           :selected-option-end="selectedOptionEnd"
           @set-start-airport="setOptionStartAirport"
           @set-end-airport="setOptionEndAirport"
+          @remove-connection="removeConnection"
+          @add-connection="addConnection"
         />
       </div>
       <div class="col-12 col-lg-5">
-        <div class="h-100 shadow-lg p-4">
+        <div class="right-menu-container shadow-lg p-4">
           <div class="">
             <div class="mb-3 w-100">
               <label for="inputStart" class="form-label">Partida</label>
@@ -47,7 +49,7 @@
                 type="radio"
                 id="input-radio-pesquisa-rapida"
                 value="rapida"
-                v-model="tipoPesquisa"
+                v-model="searchType"
                 checked
               />
               <label class="form-check-label" for="input-radio-pesquisa-rapida">
@@ -60,14 +62,26 @@
                 type="radio"
                 value="total"
                 id="input-radio-pesquisa-total"
-                v-model="tipoPesquisa"
+                v-model="searchType"
               />
               <label class="form-check-label" for="input-radio-pesquisa-total">
                 Pesquisa Total (Lento)
               </label>
             </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                value="server"
+                id="input-radio-pesquisa-server"
+                v-model="searchType"
+              />
+              <label class="form-check-label" for="input-radio-pesquisa-server">
+                Calcular no Servidor
+              </label>
+            </div>
           </div>
-          <div class="form-group mt-3" v-if="tipoPesquisa == 'rapida'">
+          <div class="form-group mt-3" v-if="searchType == 'rapida'">
             <label for="input-qtd-rotas" class="form-label"
               >Quantidade de Rotas: {{ pathsLimit }}</label
             >
@@ -127,6 +141,7 @@ import {
   Airport,
   AirportOption,
   AirportRoutes,
+  APIAirport,
   Conection,
   RegionColor,
 } from "@/types/types";
@@ -135,7 +150,7 @@ import MapViewer from "./components/MapViewer.vue";
 import EmptyState from "./components/EmptyState.vue";
 import "animate.css";
 import { Path, Point, Traverser } from "./libraries/TraversalAlgorithm";
-import { OrderedSet, Map } from "immutable";
+import {distanceBetween2Points} from '@/libraries/Utils';
 
 export default defineComponent({
   name: "App",
@@ -158,7 +173,7 @@ export default defineComponent({
       isLoadingRoutes: false,
       activeRoute: [] as string[],
       pathsLimit: 100,
-      tipoPesquisa: 'rapida' as 'rapida' | 'total',
+      searchType: 'rapida' as 'rapida' | 'total' | 'server',
       calculatedPathsCount: 0,
       calculatedTime: 0,
     };
@@ -178,6 +193,15 @@ export default defineComponent({
     pickRoutes() {
       this.isLoadingRoutes = true;
       this.airportRoutes = [];
+
+      if (this.searchType == 'server') {
+        this.serverComputeRoutes();
+      } else {
+        this.localComputeRoutes();
+      }
+    },
+    localComputeRoutes() {
+
       let points: Point[] = [];
 
       this.airports.forEach((airport) => {
@@ -211,22 +235,15 @@ export default defineComponent({
         const point2 = points.find((point) => point.id == id2);
         if (!point1 || !point2) return;
 
-        const x1 = airport1.x;
-        const y1 = airport1.y;
-        const x2 = airport2.x;
-        const y2 = airport2.y;
+        const cost = distanceBetween2Points(airport1.x, airport1.y, airport2.x, airport2.y);
 
-        const distance = Math.sqrt(
-          (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
-        );
-
-        point1.conections.push({ point: point2, cost: distance });
-        point2.conections.push({ point: point1, cost: distance });
+        point1.conections.push({ point: point2, cost: cost });
+        point2.conections.push({ point: point1, cost: cost });
       });
 
       if (!initialPoint || !finalPoint) return;
       const traverser = new Traverser(points, initialPoint, finalPoint);
-      if (this.tipoPesquisa == 'rapida') {
+      if (this.searchType == 'rapida') {
         traverser.setPathsLimit(this.pathsLimit);
       }
 
@@ -260,6 +277,41 @@ export default defineComponent({
         this.calculatedTime = (stopTimeStamp - startTimeStamp) / 1000;
       }, 30);
     },
+    serverComputeRoutes() {
+      const APIData = [] as APIAirport[];
+
+      this.airports.forEach((airport) => {
+        APIData.push({
+          id: airport.id,
+          connections: []
+        })
+      });
+
+      this.connections.forEach((con) => {
+        const id1 = con.ids[0];
+        const id2 = con.ids[1];
+        const airport1: Airport | undefined = this.airports.find(
+          (airport) => airport.id == id1
+        );
+        const airport2: Airport | undefined = this.airports.find(
+          (airport) => airport.id == id2
+        );
+        if (!airport1 || !airport2) return;
+
+        const APIAirport1 = APIData.find((airport) => airport.id == id1);
+        const APIAirport2 = APIData.find((airport) => airport.id == id2);
+        if (!APIAirport1 || !APIAirport2) return;
+
+        const cost = distanceBetween2Points(airport1.x, airport1.y, airport2.x, airport2.y);
+
+        APIAirport1.connections.push({id: APIAirport2.id, cost: cost});
+        APIAirport2.connections.push({id: APIAirport1.id, cost: cost});
+
+      });
+      console.log(APIData);
+
+
+    },
     setActiveRoute(incomingRoute: string | string[]) {
       this.activeRoute =
         incomingRoute instanceof Array
@@ -278,6 +330,12 @@ export default defineComponent({
       }
       this.selectedOptionEnd = { value: id };
     },
+    removeConnection(removedConnection: Conection) {
+      this.connections = this.connections.filter((con) => con.ids !== removedConnection.ids);
+    },
+    addConnection(newConnection: Conection) {
+      this.connections.push(newConnection);
+    }
   },
   computed: {
     airportOptionsEnd(): AirportOption[] {
@@ -329,5 +387,10 @@ body {
   min-height: 100vh;
   display: flex;
   align-items: center;
+}
+
+.right-menu-container {
+  max-height: 90vh;
+  overflow: auto;
 }
 </style>
