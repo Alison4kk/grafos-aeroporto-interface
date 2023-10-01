@@ -54,7 +54,7 @@
                 </button>
                 <button
                   class="btn btn-add-connection btn-sm flex-grow-0"
-                  v-if="selectedOptionStart.value != '' && selectedOptionStart.value != airport.id"
+                  v-if="selectedOptionStart.value != '' && selectedOptionStart.value != airport.id && !connections.some((con) => (con.ids.includes(selectedOptionStart.value) && con.ids.includes(airport.id)))"
                   @click="createConnectionWithSelected(airport.id)"
                 >
                   <i class="fa fa-plus-circle"></i>
