@@ -1,7 +1,7 @@
 
 type Point = {
   id: string,
-  conections: PointConection[],
+  connections: PointConection[],
   x: number,
   y: number
 }
@@ -28,7 +28,7 @@ class Traverser {
   constructor(points: Point[], initial: Point, final: Point) {
 
     points.forEach((point) => {
-      const connectionsDistanceToFinal = point.conections.map((con) => {
+      const connectionsDistanceToFinal = point.connections.map((con) => {
         const x1 = con.point.x;
         const y1 = con.point.y;
         const x2 = final.x;
@@ -40,7 +40,7 @@ class Traverser {
         return {con, distance};
       }).sort((a, b) => a.distance - b.distance);
 
-      point.conections = connectionsDistanceToFinal.map((con) => con.con);
+      point.connections = connectionsDistanceToFinal.map((con) => con.con);
     });
 
     this.points = points;
@@ -95,7 +95,7 @@ class Traverser {
         return;
       }
 
-      point.conections.forEach((con) => {
+      point.connections.forEach((con) => {
           if ((path.sequence.includes(con.point.id))) return;
           if (this.pathsLimit !== 0 && (path.distance + con.cost) > this.longestDistance && this.validPaths.length >= this.pathsLimit) return;
 

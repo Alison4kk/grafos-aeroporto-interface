@@ -105,9 +105,9 @@
           </button>
 
           <div v-if="airportRoutes.length && !isLoadingRoutes">
-            <p>
-              Qtd de Rotas: {{ calculatedPathsCount }}<br />
-              Tempo de Calculo: {{ calculatedTime }}
+            <p class="mt-3">
+              Rotas Calculadas: {{ calculatedPathsCount }}<br />
+              Tempo de Cálculo: {{ calculatedTime }}
             </p>
           </div>
 
@@ -207,7 +207,7 @@ export default defineComponent({
       this.airports.forEach((airport) => {
         points.push({
           id: airport.id,
-          conections: [],
+          connections: [],
           x: airport.x,
           y: airport.y,
         });
@@ -237,8 +237,8 @@ export default defineComponent({
 
         const cost = distanceBetween2Points(airport1.x, airport1.y, airport2.x, airport2.y);
 
-        point1.conections.push({ point: point2, cost: cost });
-        point2.conections.push({ point: point1, cost: cost });
+        point1.connections.push({ point: point2, cost: cost });
+        point2.connections.push({ point: point1, cost: cost });
       });
 
       if (!initialPoint || !finalPoint) return;
