@@ -84,9 +84,10 @@ class Traverser {
 
 
   traverse(point: Point = this.initialPoint, path: Path = {sequence: '', distance: 0}) {
-      path.sequence += '-' + point.id;
+      path.sequence += point.id + '-';
 
       if (point.id == this.finalPoint.id) {
+        path.sequence = path.sequence.slice(0, path.sequence.length - 1);
         if (this.pathsLimit == 0) {
           this.validPaths.push(path);
           return;

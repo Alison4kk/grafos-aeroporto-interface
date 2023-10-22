@@ -41,7 +41,7 @@
 
           <div class="form-group mt-3">
             <label for="input-qtd-rotas" class="form-label"
-              >Metodo de Pesquisa:</label
+              >Método de Pesquisa:</label
             >
             <div class="form-check">
               <input
@@ -72,25 +72,37 @@
               <input
                 class="form-check-input"
                 type="radio"
-                value="server"
-                id="input-radio-pesquisa-server"
+                value="server-melhor"
+                id="input-radio-pesquisa-server-melhor"
                 v-model="searchType"
               />
-              <label class="form-check-label" for="input-radio-pesquisa-server">
-                Calcular no Servidor
+              <label class="form-check-label" for="input-radio-pesquisa-server-melhor">
+                Calcular no Servidor (Melhor rota)
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                value="server-todas"
+                id="input-radio-pesquisa-server-todas"
+                v-model="searchType"
+              />
+              <label class="form-check-label" for="input-radio-pesquisa-server-todas">
+                Calcular no Servidor (Todas)
               </label>
             </div>
           </div>
-          <div class="form-group mt-3" v-if="searchType == 'rapida'">
+          <div class="form-group mt-3" v-if="['rapida', 'server-todas'].includes(searchType)">
             <label for="input-qtd-rotas" class="form-label"
-              >Quantidade de Rotas: {{ pathsLimit }}</label
+              >Quantidade de Rotas: {{ Number(pathsLimit).toLocaleString() }}</label
             >
             <input
               type="range"
               class="form-range"
-              min="100"
-              max="10000"
-              step="100"
+              min="10"
+              :max="searchType == 'rapida' ? 10000 : 200000"
+              step="10"
               id="input-qtd-rotas"
               v-model="pathsLimit"
             />
@@ -136,10 +148,13 @@ import { ModelSelect } from "vue-search-select";
 import "vue-search-select/dist/VueSearchSelect.css";
 import data from "@/assets/data.json";
 import LoadingState from "@/components/LoadingState.vue";
+import axios from "axios";
+import swal from "sweetalert2"
 
 import {
   Airport,
   AirportOption,
+  AirportRoute,
   AirportRoutes,
   APIAirport,
   Conection,
@@ -150,7 +165,8 @@ import MapViewer from "./components/MapViewer.vue";
 import EmptyState from "./components/EmptyState.vue";
 import "animate.css";
 import { Path, Point, Traverser } from "./libraries/TraversalAlgorithm";
-import {distanceBetween2Points} from '@/libraries/Utils';
+import { distanceBetween2Points } from "@/libraries/Utils";
+
 
 export default defineComponent({
   name: "App",
@@ -173,7 +189,7 @@ export default defineComponent({
       isLoadingRoutes: false,
       activeRoute: [] as string[],
       pathsLimit: 100,
-      searchType: 'rapida' as 'rapida' | 'total' | 'server',
+      searchType: "rapida" as "rapida" | "total" | "server-melhor"| "server-todas",
       calculatedPathsCount: 0,
       calculatedTime: 0,
     };
@@ -194,14 +210,13 @@ export default defineComponent({
       this.isLoadingRoutes = true;
       this.airportRoutes = [];
 
-      if (this.searchType == 'server') {
+      if (['server-todas', 'server-melhor'].includes(this.searchType)) {
         this.serverComputeRoutes();
       } else {
         this.localComputeRoutes();
       }
     },
     localComputeRoutes() {
-
       let points: Point[] = [];
 
       this.airports.forEach((airport) => {
@@ -235,7 +250,12 @@ export default defineComponent({
         const point2 = points.find((point) => point.id == id2);
         if (!point1 || !point2) return;
 
-        const cost = distanceBetween2Points(airport1.x, airport1.y, airport2.x, airport2.y);
+        const cost = distanceBetween2Points(
+          airport1.x,
+          airport1.y,
+          airport2.x,
+          airport2.y
+        );
 
         point1.connections.push({ point: point2, cost: cost });
         point2.connections.push({ point: point1, cost: cost });
@@ -243,7 +263,7 @@ export default defineComponent({
 
       if (!initialPoint || !finalPoint) return;
       const traverser = new Traverser(points, initialPoint, finalPoint);
-      if (this.searchType == 'rapida') {
+      if (this.searchType == "rapida") {
         traverser.setPathsLimit(this.pathsLimit);
       }
 
@@ -278,13 +298,90 @@ export default defineComponent({
       }, 30);
     },
     serverComputeRoutes() {
-      const APIData = [] as APIAirport[];
+      let APIgrafoID = '';
 
-      this.airports.forEach((airport) => {
-        APIData.push({
-          id: airport.id,
-          connections: []
+      const buscarMelhorRota = () => {
+        console.log('Buscando melhor rota');
+
+        axios({
+          method: "get",
+          url: `http://localhost:8080/api/v/1.0/dijkstra/get-best-route?grafoID=${APIgrafoID}&origem=${this.selectedOptionEnd.value}&destino=${this.selectedOptionStart.value}`,
         })
+        .then((response) => {
+          const data = response.data?.data;
+          if (!data) return;
+          this.airportRoutes.push({
+            pos: '0',
+            distance: Math.round(data.distance),
+            path: data.path,
+          });
+          this.isLoadingRoutes = false;
+        })
+        .catch((reason) => {
+          swal.fire({
+            title: 'Erro',
+            icon: 'error',
+            text: 'Não foi possivel estabelecer uma conexão com o servidor'
+          });
+        });
+      }
+
+      const buscarTodasRotas = () => {
+        axios({
+          method: "get",
+          url: `http://localhost:8080/api/v/1.0/dijkstra/list-all-routes?grafoID=${APIgrafoID}&origem=${this.selectedOptionEnd.value}&destino=${this.selectedOptionStart.value}&qtd=${this.pathsLimit}`,
+        })
+        .then((response) => {
+          const routes = response.data?.data as {distance: number, path: string}[];
+          this.isLoadingRoutes = false;
+          let newAirportRoutes = [] as AirportRoutes
+          routes.forEach((route, index) => {
+            newAirportRoutes.push({
+              pos: index.toString(),
+              path: route.path,
+              distance: Math.round(route.distance)
+            });
+          });
+          this.airportRoutes = newAirportRoutes;
+        })
+        .catch((reason) => {
+          swal.fire({
+            title: 'Erro',
+            icon: 'error',
+            text: 'Não foi possivel estabelecer uma conexão com o servidor'
+          });
+        });
+      }
+
+      axios({
+        method: "post",
+        url: "http://localhost:8080/api/v/1.0/dijkstra/grafo/addgrafo",
+        data: this.getAPIAirports()
+      })
+      .then((response) => {
+        if ((response.status == 200) && (typeof response.data?.data?.grafoID == 'string')) {
+          APIgrafoID = response.data.data.grafoID;
+          if (this.searchType == 'server-melhor')
+            buscarMelhorRota();
+          else
+            buscarTodasRotas();
+        }
+      })
+      .catch((reason) => {
+        swal.fire({
+          title: 'Erro',
+          icon: 'error',
+          text: 'Não foi possivel estabelecer uma conexão com o servidor'
+        });
+      });
+    },
+    getAPIAirports(): APIAirport[]  {
+      const APIAirports = [] as APIAirport[];
+      this.airports.forEach((airport) => {
+        APIAirports.push({
+          id: airport.id,
+          connections: [],
+        });
       });
 
       this.connections.forEach((con) => {
@@ -298,19 +395,21 @@ export default defineComponent({
         );
         if (!airport1 || !airport2) return;
 
-        const APIAirport1 = APIData.find((airport) => airport.id == id1);
-        const APIAirport2 = APIData.find((airport) => airport.id == id2);
+        const APIAirport1 = APIAirports.find((airport) => airport.id == id1);
+        const APIAirport2 = APIAirports.find((airport) => airport.id == id2);
         if (!APIAirport1 || !APIAirport2) return;
 
-        const cost = distanceBetween2Points(airport1.x, airport1.y, airport2.x, airport2.y);
+        const cost = distanceBetween2Points(
+          airport1.x,
+          airport1.y,
+          airport2.x,
+          airport2.y
+        );
 
-        APIAirport1.connections.push({id: APIAirport2.id, cost: cost});
-        APIAirport2.connections.push({id: APIAirport1.id, cost: cost});
-
+        APIAirport1.connections.push({ id: APIAirport2.id, cost: cost });
+        APIAirport2.connections.push({ id: APIAirport1.id, cost: cost });
       });
-      console.log(APIData);
-
-
+      return APIAirports;
     },
     setActiveRoute(incomingRoute: string | string[]) {
       this.activeRoute =
@@ -331,11 +430,13 @@ export default defineComponent({
       this.selectedOptionEnd = { value: id };
     },
     removeConnection(removedConnection: Conection) {
-      this.connections = this.connections.filter((con) => con.ids !== removedConnection.ids);
+      this.connections = this.connections.filter(
+        (con) => con.ids !== removedConnection.ids
+      );
     },
     addConnection(newConnection: Conection) {
       this.connections.push(newConnection);
-    }
+    },
   },
   computed: {
     airportOptionsEnd(): AirportOption[] {
@@ -357,6 +458,11 @@ export default defineComponent({
         this.selectedOptionEnd = { value: "" };
       }
     },
+    searchType() {
+      if (this.searchType == 'rapida' && this.pathsLimit > 10000) {
+        this.pathsLimit = 10000;
+      }
+    }
   },
 });
 </script>

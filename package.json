@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --port 80",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "push-dist": "git subtree push --prefix dist https://github.com/Alison4kk/grafos-aeroporto-interface.git gh-page",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "animate.css": "^4.1.1",
+    "axios": "^1.5.1",
     "bootstrap": "^5.3.1",
     "core-js": "^3.8.3",
     "datatables.net-bs5": "^1.13.6",
@@ -20,6 +21,7 @@
     "ts-node": "^10.9.1",
     "vue": "^3.2.13",
     "vue-search-select": "^3.1.2",
+    "vue-sweetalert2": "^5.0.5",
     "vue-tippy": "^6.3.1",
     "vue3-easy-data-table": "^1.5.47"
   },
