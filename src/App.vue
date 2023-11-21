@@ -68,7 +68,7 @@
                 Pesquisa Total (Lento)
               </label>
             </div>
-            <div class="form-check">
+            <div class="form-check d-none">
               <input
                 class="form-check-input"
                 type="radio"
@@ -80,7 +80,7 @@
                 Calcular no Servidor (Melhor rota)
               </label>
             </div>
-            <div class="form-check">
+            <div class="form-check d-none">
               <input
                 class="form-check-input"
                 type="radio"
@@ -409,6 +409,8 @@ export default defineComponent({
         APIAirport1.connections.push({ id: APIAirport2.id, cost: cost });
         APIAirport2.connections.push({ id: APIAirport1.id, cost: cost });
       });
+      console.log(APIAirports);
+
       return APIAirports;
     },
     setActiveRoute(incomingRoute: string | string[]) {
